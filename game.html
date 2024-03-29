@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>test</title>
+    <Style>
+        h1{
+            text-align: center;
+        }
+        canvas{   
+            border:1px  solid red;
+        }
+    </Style>
+</head>
+<body>
+    <h1>김구라 죽이기</h1>
+    <canvas id="mycanvas" width="1000" height="800"></canvas>
+    <Script>
+    //cavas 요소의 참조값
+    const canvas=document.querySelector("#mycanvas");
+    //canvas 에 그림을 그릴 도구(context) 객체 얻어내기
+    const context=canvas.getContext("2d");
+    
+    //총알 배열
+    let fires=[];
+    
+    //총알 이미지
+    const miImg=new Image();
+    miImg.src="images/mi2.png";
+
+    //배경화면
+    const roundImg=new Image();
+    roundImg.src="images/backbg.png";
+
+    const round2Img=new Image();
+    round2Img.src="images/space.jpg";
+
+    //공룡 이미지
+    const juck1Img=new Image();
+    juck1Img.src="images/juck1.png";
+    //이미지
+    const upImg=new Image();
+    upImg.src="images/juck2.png";
+
+    const Img3=new Image();
+    Img3.src="images/01_iron_man_2.jpg";
+
+    const bloodImg=new Image();
+    bloodImg.src="images/blood0.png";
+    //적군 이미지
+    const kim1Img=new Image();
+    kim1Img.src="images/kim1.png";
+    const Kim2Img=new Image();
+    Kim2Img.src="images/kim2.png";
+    const han1Img=new Image();
+    han1Img.src="images/3.jpg";
+    const han2Img=new Image();
+    han2Img.src="images/4.jpg";
+
+    const kimImgs=[kim1Img,Kim2Img];
+    let KimIndex=0;
+    
+    //공룡 좌표
+    let juckX=400,juckY=750;
+    //kim 좌표
+    let kimx=400, kimy=50;    
+    let kimxy=[];
+    let score=0;
+    let count=0;
+
+    setInterval(()=>{
+        count++;
+        //사각형 영역 clear 
+        context.clearRect(0,0,1500,800);
+        //배경이미지
+        if(score>100){
+            context.drawImage(round2Img,0,0,1500,800);
+            context.drawImage(upImg,juckX-50,juckY-50,100,100);
+            miImg.src="images/mi3.png";
+        }else if(score>300){
+            context.drawImage(round2Img,0,0,1500,800);
+            context.drawImage(Img3,juckX-50,juckY-50,100,100);
+            miImg.src="images/mi1.png";
+        }else{
+            context.drawImage(roundImg,0,0,1500,800);
+            context.drawImage(juck1Img,juckX-50,juckY-50,100,100);
+        }
+        
+        //kim이미지
+        context.drawImage(kimImgs[KimIndex],kimx-50,kimy-50,100,100);
+        
+        //총알 그리기
+        for(let i=0; i<fires.length; i++){
+            let tmp=fires[i];
+            context.drawImage(miImg,tmp.x-50,tmp.y-50,100,100);
+            if (tmp.x - 50 < kimx + 50 &&tmp.x + 50 > kimx - 50 &&
+                tmp.y - 50 < kimy + 50 &&tmp.y + 50 > kimy - 50) 
+                {  
+                
+                    score += 10; // 점수 증가
+                    kimy = 50; // 이미지를 초기 위치로 리셋
+                    kimx = Math.random() * 1001;
+                }
+            
+    
+        }
+
+        //총알 움직이기
+        fires.forEach((tmp)=>{
+            tmp.x +=tmp.sppedX;
+            tmp.y +=tmp.sppedY;
+            tmp.isOut=tmp.y<=0;
+        });
+
+        //kim 이미지 그리기
+        let kimOut=kimy==801&&kimx<=1000&&kimx>=0;
+        //kim 출력위치
+        kimy++;
+       
+        if(kimOut){
+            kimy=50;
+            kimx=Math.random() * 1001;
+        }
+     
+
+        fires=fires.filter((tmp)=>!tmp.isOut);
+        
+        //총알화면 밖으로 나가면 지우기
+        for(let i=fires.length-1; i>=0; i--){
+            let tmp=fires[i];
+            if(tmp.isOut){
+                fires.splice(i,1);
+            }
+        }
+
+
+        context.font="30px consolas"; 
+            context.fillStyle="red";
+            context.fillText("Point:",850,30);
+            context.fillText(score,950,30);
+
+        //kim사진 움직이는 모습 보이게하기
+        if(count%20==0){
+            KimIndex++;
+            if(KimIndex==2){
+                KimIndex=0;
+            }
+        }
+        
+
+    },10);
+
+    canvas.addEventListener("mousemove",(e)=>{
+        juckX=e.offsetX;
+        jucky=750;
+    });
+
+    canvas.addEventListener("mousedown",(e)=>{
+
+        let tmp={};
+        tmp.x=juckX;
+        tmp.y=juckY;
+        
+        tmp.sppedX=0;
+        tmp.sppedY=-10;
+
+        //tmp.isOut=false;
+
+        fires.push(tmp);
+
+
+
+          
+    });
+
+
+    </Script>
+</body>
+</html>
